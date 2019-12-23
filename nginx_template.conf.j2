@@ -1,0 +1,22 @@
+server {
+  listen       80;
+  server_name  {{ service_id }};
+  location / {
+    access_log off;
+    proxy_pass http://{{ remote_host }}:{{ remote_http_port }};
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+  location /ready {
+    stub_status on;
+    access_log   off;
+  }
+}
+server {
+  listen       50050 http2;
+  server_name  {{ service_id }};
+  location / {
+    grpc_pass grpc://{{ remote_host }}:{{ remote_grpc_port }};
+  }
+}
